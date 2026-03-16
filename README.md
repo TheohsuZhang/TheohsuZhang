@@ -1,50 +1,110 @@
-# command_Backup
+# Command Backup Utility
 
-## 简介 (Introduction)
-这是一个专为汽车电子自动化测试台架（如 Vector CANoe, CANape, INCA 等环境）设计的数据文件自动抓取与备份工具。
+**版本 (Version)**: v1.1.4
+**更新日期 (Date)**: 2026-03-10
+
+## 📖 简介 (Introduction)
+
+`command_Backup` 是一个专为汽车电子自动化测试台架（如 Vector CANoe, CANape, INCA 等环境）设计的数据文件自动抓取与备份工具。
 
 在自动化测试序列（如 JScript/VBScript 控制的用例）执行过程中，它能够以极高的频率监控并抓取生成的测量数据文件（默认 `.mf4` 格式），自动添加时间戳前缀并转移到备份目录，从而防止测试数据被后续序列覆盖或丢失。
 
-## 主要功能 (Features)
-- **文件监控与搬运**：毫秒级监控源目录，发现目标文件（如 `.mf4`）立即重命名并移动。
-- **自动重命名防冲突**：自动为转移的文件添加 `YYYYMMDD-HHMMSS_` 时间戳前缀。
-- **安全机制**：自动忽略正在生成的 `.tmp` 临时文件；自动检测并关闭冲突的旧实例，确保单例运行。
-- **灵活配置**：通过 `config.ini` 配置源目录、目标目录、扫描频率、超时时间等。
-- **双模式运行**：支持单次扫描模式和持续监控（超时自动退出）模式。
+## ✨ 主要功能 (Features)
 
-## ⚠️ 重要：Windows 7 兼容性与打包指南 (Windows 7 Compatibility)
+*   **⚡ 极速文件搬运**：毫秒级监控源目录，发现目标文件（如 `.mf4`）立即处理。
+*   **🕒 智能重命名**：
+    *   自动为文件添加 `YYYYMMDD-HHMMSS_` 时间戳前缀，防止同名覆盖。
+    *   支持命令行传入自定义前缀（如测试用例 ID）。
+*   **🛡️ 安全机制**：
+    *   **临时文件过滤**：自动忽略正在写入的 `.tmp` 文件，防止移动不完整的数据。
+    *   **单例保护**：启动时自动检测并关闭旧的程序实例，确保系统中只有一个“守门员”在运行。
+*   **⚙️ 灵活配置**：
+    *   所有行为通过 `config.ini` 控制，无需修改代码。
+    *   支持**双模式运行**：单次扫描（用完即走）或 持续监控（守护进程）。
+*   **🖥️ Windows 7 兼容**：特别优化构建流程，完美支持老旧的 x86 Windows 7 测试台架。
 
-在工业测试台架中，经常会遇到运行老旧 Windows 7 (特别是 32 位) 系统的上位机。如果在这些机器上运行较高版本 Python (如 3.9+) 打包的程序，会出现 `api-ms-win-core-path-l1-1-0.dll is missing` 的报错。
+## 🚀 快速开始 (Quick Start)
 
-为了解决此问题，请遵循以下打包规范：
+### 1. 运行 (Run)
+双击 `command_Backup.exe` 即可运行。它会自动读取同目录下的 `config.ini`。
 
-### 推荐方案：使用 Python 3.8 打包
-**Python 3.8 是最后一个官方支持 Windows 7 的版本。**
-1. 在开发机上安装 **Python 3.8 (32-bit / x86)** 环境。
-2. 在该环境中执行 `pip install pyinstaller` 安装打包依赖。
-3. 运行项目提供的 `build_all.py` 或 `build_one.py` 进行编译。
-这样编译出的 `command_Backup-x86.exe` 即可在老旧的 Win7 测试台架上原生完美运行。
+### 2. 配置 (Configuration)
+编辑 `config.ini` 文件来调整行为：
 
-### 备选方案：DLL 补丁 (免重新编译)
-如果暂且无法降级 Python 重新编译，可以下载兼容补丁：
-1. 从开源社区（例如 GitHub: `nalexandru/api-ms-win-core-path-HACK`）下载对应架构（x86）的 `api-ms-win-core-path-l1-1-0.dll` 文件。
-2. 将该 DLL 文件**直接放置在与 `command_Backup-x86.exe` 同级的目录中**即可启动。
-
-## 配置说明 (`config.ini`)
-程序启动时会自动读取同目录下的 `config.ini` 文件，典型配置如下：
 ```ini
 [paths]
-source_dir = E:\Zhangxiaoxu\JScript\111         # 自动化脚本生成数据的目录
-backup_dir = E:\Zhangxiaoxu\JScript\111\backup  # 数据备份目标目录
-file_extensions = .mf4                          # 要抓取的文件后缀 (多为 ASAM MDF4)
-time_range_minutes = 5                          # 仅抓取最近 5 分钟修改的文件 (0 为不限制)
-scan_delay_seconds = 2                          # 启动后延迟 2 秒开始扫描
-monitor_timeout_seconds = 30                    # 监控模式超时时间 (30 秒未抓到文件则自动退出)
-monitor_interval_seconds = 0.5                  # 扫描间隔时间 (每 0.5 秒轮询一次)
+# 监听的源目录（自动化脚本生成数据的目录）
+source_dir = E:\TestBench\Data\Source
+
+# 备份的目标目录（数据将被移动到这里）
+backup_dir = E:\TestBench\Data\Backup
+
+# 要抓取的文件后缀 (逗号分隔，默认为 .mf4)
+file_extensions = .mf4, .dat
+
+# [可选] 仅抓取最近 N 分钟内修改的文件 (0 = 不限制)
+time_range_minutes = 5
+
+# [可选] 启动后延迟 N 秒再开始扫描 (用于等待文件写入完成)
+scan_delay_seconds = 2
+
+# [可选] 监控模式超时时间 (秒)
+# 0 = 单次扫描模式 (运行一次即退出)
+# >0 = 持续监控模式 (直到 N 秒内没有新文件或时间耗尽)
+monitor_timeout_seconds = 30
+
+# [可选] 扫描间隔 (秒)
+monitor_interval_seconds = 0.5
 ```
 
-## 编译与构建 (Build Instructions)
-本项目包含严谨的构建脚本，支持多架构并行打包以适配不同台架：
-- `build_config.ini`：在这里配置你电脑上 32位和 64位 Python 解释器的绝对路径。
-- `build_all.py`：多架构打包编排器。读取配置并自动生成 `-x86.exe` 和 `-x64.exe`，输出到 `release/` 目录。
-- `build.py`：单文件快速构建工具，并在打包时自动递增代码中的 Patch 版本号和更新日期。
+### 3. 命令行参数 (Advanced Usage)
+支持通过命令行传递参数作为文件名前缀：
+
+```powershell
+# 此时生成的文件名为: 20260316-080000_TestCase001_data_1.mf4
+command_Backup.exe "TestCase001"
+```
+
+## ⚠️ Windows 7 兼容性说明 (Compatibility)
+
+工业现场常存在老旧的 Windows 7 32位系统。为确保兼容性，**必须遵循以下规则**：
+
+1.  **推荐方案**：使用 **Python 3.8 (x86)** 进行打包。Python 3.8 是最后一个官方支持 Win7 的版本。
+2.  **构建结果**：使用项目提供的构建脚本生成的 `command_Backup-x86.exe` 可直接在 Win7 上运行。
+3.  **常见报错**：若在 Win7 上运行高版本 Python 打包的程序，会报错 `api-ms-win-core-path-l1-1-0.dll is missing`。
+
+## 🛠️ 开发与构建 (Build Instructions)
+
+本项目内置了自动化的构建系统，基于 `PyInstaller`。
+
+### 依赖准备
+请确保安装了依赖：
+```bash
+pip install pyinstaller
+```
+
+### 构建脚本
+
+| 脚本 | 用途 | 说明 |
+| :--- | :--- | :--- |
+| `build.py` | **日常开发构建** | 使用当前环境 Python 打包。会自动增加 Patch 版本号并更新日期。 |
+| `build_all.py` | **发布版本构建** | **(推荐)** 读取 `build_config.ini`，调用指定路径的 32位和 64位 Python 分别打包，生成最终发布文件。 |
+| `build_one.py` | **单架构构建** | 底层构建工具，支持 `--no-bump` 参数防止版本号跳变。 |
+
+### 如何发布新版本
+1.  配置 `build_config.ini`，填入你电脑上 Python x86 和 x64 的解释器路径。
+2.  运行构建命令：
+    ```powershell
+    python build_all.py
+    ```
+3.  在 `release/` 目录下即可找到 `command_Backup-x86.exe` 和 `command_Backup-x64.exe`。
+
+## 📂 项目结构 (Project Structure)
+
+*   `command_Backup.py`: 核心源代码。
+*   `config.ini`: 默认配置文件。
+*   `build_all.py` / `build.py`: 构建脚本。
+*   `.github/copilot-instructions.md`: GitHub Copilot 的辅助开发指南。
+
+---
+*Created for Automotive Test Automation*
