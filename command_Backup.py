@@ -12,6 +12,7 @@ import ctypes
 import configparser
 import time
 import subprocess
+import re
 from datetime import datetime
 
 # Constants
@@ -133,12 +134,32 @@ def get_config():
     }
 
 def match_extension(filename, file_extensions):
-    """Check if file extension matches (exclude .tmp temporary files)"""
+    """Check if file extension matches (ultra-strict validation)"""
     filename_lower = filename.lower()
-    # Exclude temporary files (.tmp or .tmp.xxx like .tmp.mf4)
-    if filename_lower.endswith('.tmp') or '.tmp.' in filename_lower:
+    
+    # 1. Must exactly match one of the target extensions at the very end
+    if not any(filename_lower.endswith(ext) for ext in file_extensions):
         return False
-    return any(filename_lower.endswith(ext) for ext in file_extensions)
+
+    # 2. Exclude any temporary markers
+    if 'tmp' in filename_lower or 'temp' in filename_lower:
+        return False
+        
+    # 3. Only ONE dot allowed in the entire filename (the extension dot)
+    if filename_lower.count('.') != 1:
+        return False
+        
+    # 4. Exclude multiple occurrences of the extension string
+    for ext in file_extensions:
+        if filename_lower.count(ext) > 1:
+            return False
+
+    # 5. Regex validation: strict filename characters (alphanumeric, -, _, spaces, parentheses)
+    # This prevents invisible characters or extremely malformed paths from passing
+    if not re.match(r'^[\w\-\s\(\)]+\.[a-z0-9]+$', filename_lower):
+        return False
+        
+    return True
 
 def is_within_time_range(filepath, time_range_minutes):
     """Check if file is within specified time range"""
@@ -168,12 +189,29 @@ def check_backup_dir_writable(backup_dir):
 def _find_matched_files(source_dir, file_extensions, time_range_minutes):
     """Find matched files"""
     try:
-        return sorted([
-            f for f in os.listdir(source_dir)
-            if match_extension(f, file_extensions)
-            and is_within_time_range(os.path.join(source_dir, f), time_range_minutes)
-            and os.path.isfile(os.path.join(source_dir, f))
-        ])
+        valid_files = []
+        for f in os.listdir(source_dir):
+            filepath = os.path.join(source_dir, f)
+            
+            # Check 1: Is it an actual file?
+            if not os.path.isfile(filepath):
+                continue
+                
+            # Check 2: File size must be strictly > 0 bytes (ignore empty/broken files)
+            if os.path.getsize(filepath) == 0:
+                continue
+                
+            # Check 3: Strict extension and name matching
+            if not match_extension(f, file_extensions):
+                continue
+                
+            # Check 4: Time range condition
+            if not is_within_time_range(filepath, time_range_minutes):
+                continue
+                
+            valid_files.append(f)
+            
+        return sorted(valid_files)
     except Exception as e:
         print(f"  Error scanning directory: {e}")
         return []
