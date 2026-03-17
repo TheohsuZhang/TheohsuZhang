@@ -1,7 +1,7 @@
 # Command Backup Utility
 
-**版本 (Version)**: v1.1.4
-**更新日期 (Date)**: 2026-03-10
+**版本 (Version)**: v1.0.1
+**更新日期 (Date)**: 2026-03-17
 
 ## 📖 简介 (Introduction)
 
@@ -114,7 +114,8 @@ pip install pyinstaller
     ```powershell
     python build_all.py
     ```
-3.  在 `release/` 目录下即可找到 `command_Backup-x86.exe` 和 `command_Backup-x64.exe`。
+3.  **自动同步**：构建脚本会自动读取 `command_Backup.py` 顶部的版本号和日期，并将其同步更新到本 `README.md` 文档以及最终生成的 `exe` 文件的属性信息中。
+4.  在 `release/` 目录下即可找到 `command_Backup-x86.exe` 和 `command_Backup-x64.exe`。
 
 ## 📂 项目结构 (Project Structure)
 

@@ -46,9 +46,11 @@ from __future__ import annotations
 
 import configparser
 import os
+import re
 import shutil
 import subprocess
 import sys
+from datetime import datetime
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Sequence
@@ -68,6 +70,47 @@ class BuildConfig:
     spec_file: Path = DEFAULT_SPEC_FILE
     release_dir: Path = DEFAULT_RELEASE_DIR
     onefile_name: str = DEFAULT_ONEFILE_NAME
+
+
+def _sync_version_info() -> None:
+    main_py = PROJECT_DIR / "command_Backup.py"
+    info_file = PROJECT_DIR / "file_version_info_calc.txt"
+    if not main_py.exists() or not info_file.exists():
+        return
+
+    content = main_py.read_text(encoding="utf-8")
+    version_match = re.search(r"# Version:\s*v([\d\.]+)", content)
+    date_match = re.search(r"# Date:\s*([\d-]+)", content)
+
+    if not version_match or not date_match:
+        return
+
+    version_str = version_match.group(1)
+    date_str = date_match.group(1)
+
+    parts = version_str.split('.')
+    while len(parts) < 4:
+        parts.append("0")
+    ver_tuple = f"({parts[0]}, {parts[1]}, {parts[2]}, {parts[3]})"
+    ver_str = f"{parts[0]}.{parts[1]}.{parts[2]}.{parts[3]}"
+
+    info_content = info_file.read_text(encoding="utf-8")
+    info_content = re.sub(r'filevers=\(\d+,\s*\d+,\s*\d+,\s*\d+\)', f'filevers={ver_tuple}', info_content)
+    info_content = re.sub(r'prodvers=\(\d+,\s*\d+,\s*\d+,\s*\d+\)', f'prodvers={ver_tuple}', info_content)
+    info_content = re.sub(r"StringStruct\([uU]?['\"]FileVersion['\"],\s*[uU]?['\"][^'\"]+['\"]\)", f"StringStruct('FileVersion', '{ver_str}')", info_content)
+    info_content = re.sub(r"StringStruct\([uU]?['\"]ProductVersion['\"],\s*[uU]?['\"][^'\"]+['\"]\)", f"StringStruct('ProductVersion', '{ver_str}')", info_content)
+    info_content = re.sub(r"StringStruct\([uU]?['\"]FileDescription['\"],\s*[uU]?['\"][^'\"]+['\"]\)", f"StringStruct('FileDescription', 'Command Backup Utility (Build Date: {date_str})')", info_content)
+
+    info_file.write_text(info_content, encoding="utf-8")
+    
+    readme_path = PROJECT_DIR / "README.md"
+    if readme_path.exists():
+        readme_content = readme_path.read_text(encoding="utf-8")
+        readme_content = re.sub(r"\*\*版本 \(Version\)\*\*: v\d+\.\d+\.\d+", f"**版本 (Version)**: v{version_str}", readme_content)
+        readme_content = re.sub(r"\*\*更新日期 \(Date\)\*\*: \d{4}-\d{2}-\d{2}", f"**更新日期 (Date)**: {date_str}", readme_content)
+        readme_path.write_text(readme_content, encoding="utf-8")
+
+    print(f"Synced Version (v{version_str}) and Date ({date_str}) to info file and README.\n")
 
 
 def _print_header() -> None:
@@ -227,6 +270,8 @@ def _write_default_build_config_template(path: Path) -> None:
 
 def main(argv: list[str]) -> int:
     _print_header()
+
+    _sync_version_info()
 
     # Help the user by creating a template config if missing
     _write_default_build_config_template(DEFAULT_CONFIG_FILE)

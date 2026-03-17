@@ -1,7 +1,7 @@
 # =============================================================================
 # Program:    command_Backup.py
-# Version:    v1.1.4
-# Date:       2026-03-10
+# Version:    v1.0.1
+# Date:       2026-03-17
 # Description: Backup files with specified extensions from source to backup directory
 # =============================================================================
 

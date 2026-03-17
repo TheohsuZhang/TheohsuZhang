@@ -3,7 +3,7 @@
  False,
  False,
  ['E:\\Python_Codes\\Projects\\command_Backup\\app_icon.ico'],
- versioninfo.VSVersionInfo(ffi=versioninfo.FixedFileInfo(filevers=(1, 0, 0, 0), prodvers=(1, 0, 0, 0), mask=0x3f, flags=0x0, OS=0x40004, fileType=1, subtype=0x0, date=(0, 0)), kids=[versioninfo.StringFileInfo([versioninfo.StringTable('040904B0', [versioninfo.StringStruct('CompanyName', 'Command Backup Project'), versioninfo.StringStruct('FileDescription', 'Command Backup Utility'), versioninfo.StringStruct('FileVersion', '1.0.0.0'), versioninfo.StringStruct('InternalName', 'command_Backup'), versioninfo.StringStruct('LegalCopyright', 'Copyright (c) ZhangXiaoxu'), versioninfo.StringStruct('OriginalFilename', 'command_Backup.exe'), versioninfo.StringStruct('ProductName', 'command_backup'), versioninfo.StringStruct('ProductVersion', '1.0.0.0')])]), versioninfo.VarFileInfo([versioninfo.VarStruct('Translation', [1033, 1200])])]),
+ versioninfo.VSVersionInfo(ffi=versioninfo.FixedFileInfo(filevers=(1, 0, 1, 0), prodvers=(1, 0, 1, 0), mask=0x3f, flags=0x0, OS=0x40004, fileType=1, subtype=0x0, date=(0, 0)), kids=[versioninfo.StringFileInfo([versioninfo.StringTable('040904B0', [versioninfo.StringStruct('CompanyName', 'Command Backup Project'), versioninfo.StringStruct('FileDescription', 'Command Backup Utility (Build Date: 2026-03-17)'), versioninfo.StringStruct('FileVersion', '1.0.1.0'), versioninfo.StringStruct('InternalName', 'command_Backup'), versioninfo.StringStruct('LegalCopyright', 'Copyright (c) ZhangXiaoxu'), versioninfo.StringStruct('OriginalFilename', 'command_Backup.exe'), versioninfo.StringStruct('ProductName', 'command_backup'), versioninfo.StringStruct('ProductVersion', '1.0.1.0')])]), versioninfo.VarFileInfo([versioninfo.VarStruct('Translation', [1033, 1200])])]),
  False,
  False,
  b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<assembly xmlns='
@@ -84,7 +84,7 @@
  [],
  False,
  False,
- 1773715217,
+ 1773725469,
  [('run.exe',
    'D:\\Programs\\Python\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],

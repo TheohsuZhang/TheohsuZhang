@@ -41,11 +41,15 @@ The project uses PyInstaller to create standalone Windows executables.
 ## Key Conventions
 
 - **Version Management**:
-    - `command_Backup.py` header is the source of truth for `Version` and `Date`.
-    - **Do not manually edit version numbers**; use `build.py` or `build_one.py --bump`.
+    - The build orchestrator (`build_all.py`) automatically reads the Version and Date from the header of `command_Backup.py`.
+    - It seamlessly syncs this information into `README.md` and `file_version_info_calc.txt` so the compiled executable properties stay up-to-date without any manual prompts.
 
 - **File Handling**:
-    - **Exclusions**: Explicitly ignores files ending in `.tmp` or containing `.tmp.` (e.g., `data.tmp.mf4`) to avoid moving incomplete recordings.
+    - **Strict Exclusions**: 
+        - 0-byte (empty) files are rejected.
+        - Filenames with multiple dots (`.`) are rejected.
+        - Files containing `tmp` or `temp` (case-insensitive) anywhere in the name are rejected.
+        - Filenames must strictly contain only alphanumeric characters, dashes, underscores, spaces, and parentheses.
     - **Renaming**: Format: `{timestamp}_{prefix}_{original_name}_{index}{ext}`.
 
 - **Console Output**:
